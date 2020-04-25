@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: check for valid OS --> {{ansible_os_family}}
+      fail:
+        msg: This playbook accepts only Debian and Redhat OS
+      when: '{{ansible_os_family != "Debian" and ansible_os_family != "RedHat"}}'
+    - name: Load package name from variable file
+      include_vars:
+        file: "{{ansible_os_family}}.yml"
+    - name: install Linux packages
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: true
+      loop: "{{pkg_names}}"
+    - name: import tasks from other yml file
+      import_tasks: 1install_any_package_task.yml
+      vars:
+        pkg_name: git
+      when: ansible_facts['os_family']|lower == 'redhat'   
+    - name: copy index file
+      template:
+        src: index.php
+        dest: /var/www/html
+      notify: ['start and enable apache']
+  handlers:
+    - name: start and enable apache
+      service:
+        name: "{{service_name}}"
+        state: started
+        enabled: yes
+

@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+  tasks:
+    - debug:
+        msg: "{{ansible_os_family == 'Debian'}}    {{ansible_os_family}}  {{ansible_facts['os_family']}} "
+    - name: install web server ubuntu
+      apt:
+        name: apache2
+        state: latest
+      when: "{{ansible_os_family == 'Debian'}}"
+    - name: install web server on redhat
+      yum:
+        name: httpd
+        state: latest
+      when: ansible_facts['os_family'] == 'RedHat'
+    - name: start apache
+      service:
+        name: httpd
+        state: started
+      when: ansible_facts['os_family'] == 'RedHat'
+

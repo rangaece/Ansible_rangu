@@ -1,0 +1,14 @@
+---
+#- hosts: all
+  vars: 
+    pkg_name: git
+  become: yes
+  tasks:
+    - name: Install github
+      #become: yes
+      yum:
+          name: "{{pkg_name}}"
+          state: latest 
+    - debug: 
+        msg: package name is {{pkg_name}}    
+

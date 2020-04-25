@@ -1,0 +1,7 @@
+---
+- name: Install github
+  yum:
+      name: "{{pkg_name}}"
+      state: latest
+- debug:
+    msg: package name is {{pkg_name}}

@@ -1,0 +1,4 @@
+---
+pkg_names: ['httpd', 'php' ]
+service_name: httpd
+module_name: yum

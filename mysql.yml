@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    http_port: 80
+    max_clients: 200
+    #remote_user: root
+  tasks:
+  - name: ensure mysql is at the latest version
+    apt:
+      name: mysql-server
+      state: latest
+      update_cache: yes
+  - name: ensure mysql is running
+    service:
+      name: mysql
+      state: started

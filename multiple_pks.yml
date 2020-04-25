@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: debug msg
+      debug:
+        msg: "{{ (item == 'nginx' and ansible_os_family == 'RedHat') != 'true' }}"
+      with_items: ['nano', 'wget', 'nginx']
+
+    - name: Install {{item}}
+      package:
+        name: "{{item}}"
+        state: latest
+        #when: "{{item == 'nginx'}} and {{ansible_os_family != 'RedHat'}}"
+      with_items:
+        - nano
+        - wget
+        - nginx
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Mysql
+      apt:
+        name: mysql-server
+        state: latest      
+      notify: start mysql
+  handlers:
+    - name: start mysql
+      service:
+        name: mysql
+        state: started
+      when: nginx
+

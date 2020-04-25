@@ -1,0 +1,5 @@
+---
+pkg_names: ['apache2', 'php','libapache2-mod-php','phpmyadmin']
+service_name: apache2
+#module_name: apt
+

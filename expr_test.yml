@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: debug msg
+      debug:
+        msg: "{{ not (item == 'nginx' and ansible_os_family == 'RedHat')}}"
+      with_items: ['nano', 'wget', 'nginx']
+
+    - name: Install {{item}}
+      package:
+        name: "{{item}}"
+        state: latest
+      when: "{{ not (item == 'nginx' and ansible_os_family == 'RedHat')}}"
+      with_items:
+        - nano
+        - wget
+        - nginx

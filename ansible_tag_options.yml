@@ -1,0 +1,22 @@
+---
+- hosts: all
+  vars: 
+    pkg_name: git
+  become: yes
+  tasks:
+    - name: Install github
+      #become: yes
+      yum:
+          name: "{{pkg_name}}"
+          state: latest 
+      tags: [never, 'run git']
+    - debug: 
+        msg: package name is {{pkg_name}}
+      tags: [always, 'debug']
+    - debug:
+        msg: untagged demo
+
+
+#tag options tagged, untagged, all
+#how to run ansible-playbook x.yml --tags = 'debug' or --skip-tags = ""
+#special tags --> never[will never run until specified with --tags option], always [runs always except in case of skip tags]
