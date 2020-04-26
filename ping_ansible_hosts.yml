@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+    - name: ping ansible hosts
+      shell: ansible -m ping all
+      become: yes

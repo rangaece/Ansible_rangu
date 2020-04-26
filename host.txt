@@ -1,0 +1,2 @@
+172.31.4.223 ~/ansible_ssh
+172.31.14.210 ~/ansible_ssh

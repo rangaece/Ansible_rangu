@@ -17,7 +17,7 @@
         update_cache: true
       loop: "{{pkg_names}}"
     - name: import tasks from other yml file
-      import_tasks: 1install_any_package_task.yml
+      import_tasks: install_any_package_task.yml
       vars:
         pkg_name: git
       when: ansible_facts['os_family']|lower == 'redhat'   

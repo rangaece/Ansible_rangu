@@ -1,0 +1,64 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: ec2 block
+      block:
+        - name: list aws instances
+          ec2_instance_facts:
+            region: us-west-1
+          register: my_instances
+
+        - debug:
+            msg: "output from insatnces {{my_instances}}"
+
+        - name: Upload public key into AWS
+          ec2_key:
+            name: ansible_ssh
+            key_material: "{{ lookup('file', '~/ansible_ssh.pub') }}"
+            region: us-west-1
+            wait: yes
+          register: mykeypair
+        - debug:
+            msg: "output from keypair {{mykeypair}} {{mykeypair.key.name}}"
+        - name: Create EC2 Security group
+          ec2_group:
+            name: example security group
+            description: an example EC2 group
+            vpc_id: vpc-907764f2
+            region: us-west-1
+            rules:
+              - proto: tcp
+                from_port: 22
+                to_port: 22
+                cidr_ip: 0.0.0.0/0
+          register: mygroup
+        - debug:
+            msg: "output from keypair {{mygroup}}"
+        - name: launch instance
+          ec2:
+            key_name: "{{mykeypair.key.name}}"
+            region: us-west-1
+            instance_type: t2.micro123
+            image: ami-0f56279347d2fa43e
+            wait: yes
+            group: "{{mygroup.group_name}}"
+            count: 1
+            vpc_subnet_id: subnet-753c6433
+            assign_public_ip: yes
+      rescue:
+        - name: rollback key changes
+          ec2_key:
+            name: "{{mykeypair.key.name}}"
+            state: absent
+            region: us-west-1
+          when: "{{ansible_failed_task.name == 'launch instance'}}"
+        - name: rollback group changes
+          ec2_group:
+            name: "{{mygroup.group_name}}"
+            state: absent
+            region: us-west-1
+          when: "{{ansible_failed_task.name == 'launch instance'}}"
+        - debug:
+            msg: keypair, sec_group deleted successfully {{ansible_failed_task.name}}
+

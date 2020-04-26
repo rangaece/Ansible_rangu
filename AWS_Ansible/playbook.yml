@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: test task
+      debug: 
+        msg: 'hello world'
+

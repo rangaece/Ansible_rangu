@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Upload public key into AWS
+      ec2_key:
+        name: ansible_ssh
+        key_material: "{{ lookup('file', '~/ansible_ssh.pub') }}"
+        region: us-west-1
+        wait: yes
+      register: mykeypair
+    - debug:
+        msg: "output from keypair {{mykeypair}} {{mykeypair.key.name}}"
+    - name: Create EC2 Security group
+      ec2_group:
+        name: example security group
+        description: an example EC2 group
+        vpc_id: vpc-907764f2
+        region: us-west-1
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+      register: mygroup
+    - debug:
+        msg: "output from keypair {{mygroup}}"
+    - name: launch instance
+      ec2:
+        key_name: "{{mykeypair.key.name}}"
+        region: us-west-1
+        instance_type: t2.micro
+        image: ami-0f56279347d2fa43e
+        wait: yes
+        group: "{{mygroup.group_name}}"
+        count: 1
+        vpc_subnet_id: subnet-753c6433
+        assign_public_ip: yes
+      register: instance
+    - debug:
+        msg: "Private IP: {{instance.instances[0].private_ip}}"
+      
+    - name: Create file
+      lineinfile:
+        path: /etc/ansible/hosts
+        line: "{{instance.instances[0].private_ip}} ansible_ssh_private_key_file=~/ansible_ssh.pem"
+        create: yes     
+      become: yes
+- name: Include playbook
+  import_playbook: lamp_dynamic.yml  

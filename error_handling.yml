@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Handle the error
+      block:
+        - debug:
+            msg: 'I execute normally'
+        - name: i force a failure
+          command: '/bin/false'
+        - debug:
+            msg: 'I never execute, due to the above task failing, :-('
+        - apt:
+            name: nginx
+            state: latest
+            register: nginx-output
+      rescue:
+        - debug:
+            msg: 'I caught an error, can do stuff here to fix it, :-) {{ansible_failed_task.name}} {{ansible_failed_result}}'
+      always:
+        - debug:
+            msg: 'any cleanup cna be done here'

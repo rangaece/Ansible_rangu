@@ -1,0 +1,17 @@
+---
+- name: ec2 instance
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: launch instance
+    ec2:
+      key_name: devops001
+      region: us-west-1
+      instance_type: t2.micro
+      image: ami-0f56279347d2fa43e
+      wait: yes
+      group: default
+      count: 1
+      vpc_subnet_id: subnet-753c6433
+      assign_public_ip: yes
+
